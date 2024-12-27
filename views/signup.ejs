@@ -1,0 +1,23 @@
+<link rel="stylesheet" href="../public/css/signup.css">
+<div class="signup-container">
+    <div class="card">
+        <div class="logo">
+            <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="Logo">
+        </div>
+        <h1>Sign Up</h1>
+        <p>Join us and start your journey today!</p>
+        <form action="/signup" method="POST">
+            <div class="form-group">
+                <input type="text" placeholder="Username" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <input type="password" placeholder="Password" id="password" name="password" required>
+            </div>
+            <div class="desk">
+                <p>Sudah punya akun? <a href="/login">Login di sini</a>.</p>
+            </div>
+            <button type="submit">Sign up</button>
+        </form>
+        
+    </div>
+</div>
