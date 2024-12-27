@@ -38,7 +38,7 @@
                             <label for="newProductPrice">Price</label>
                             <input type="text" id="newProductPrice" class="form-control" required>
                         </div>
-                        
+
                         <!-- Hidden file input, will be shown after clicking Add Product -->
                         <div id="fileInputContainer" style="display:none;">
                             <label for="newProductImage">Image</label>
@@ -117,8 +117,8 @@
                         <p class="card-text">${product.deskripsi}</p>
                         <p class="card-price">${product.harga}</p>
                         ${product.image_url ? `<img src="${product.image_url}" alt="Product Image" width="50" height="50" class="ml-2" />` : ''}
-                        <button class="btn btn-sm btn-success editBtn" data-id="${product.id}">Edit</button>
-                        <button class="btn btn-sm btn-danger deleteBtn" data-id="${product.id}">Delete</button>
+                        <button class="btn btn-sm btn-success editBtn" data-id="${product.id_produk}">Edit</button>
+                        <button class="btn btn-sm btn-danger deleteBtn" data-id="${product.id_produk}">Delete</button>
                     </div>
                 </div>
             `;
@@ -128,7 +128,7 @@
         // Attach event handlers for dynamic content
         $('.editBtn').on('click', function () {
             currentEditId = $(this).data('id');
-            const product = produk.find(p => p.id === currentEditId);
+            const product = produk.find(p => p.id_produk === currentEditId);
             editProductNameInput.value = product.nama_produk;
             editProductDescriptionInput.value = product.deskripsi;
             editProductPriceInput.value = product.harga;
@@ -141,7 +141,7 @@
                 url: '/produk/' + id,
                 type: 'DELETE',
                 success: function () {
-                    produk = produk.filter(product => product.id !== id);
+                    produk = produk.filter(product => product.id_produk !== id);
                     renderproduk();
                 }
             });
@@ -210,7 +210,7 @@
                 harga: updatedProductPrice
             }),
             success: function () {
-                const updatedProduct = produk.find(product => product.id === currentEditId);
+                const updatedProduct = produk.find(product => product.id_produk === currentEditId);
                 updatedProduct.nama_produk = updatedProductName;
                 updatedProduct.deskripsi = updatedProductDescription;
                 updatedProduct.harga = updatedProductPrice;
