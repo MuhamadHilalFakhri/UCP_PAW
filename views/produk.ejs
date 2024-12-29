@@ -1,22 +1,17 @@
-<link rel="stylesheet" href="../public/css/product.css">
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 <div class="container mt-5">
     <h1 class="text-center">Product List</h1>
 
-    <!-- Form to Add New Product -->
+
     <form id="addProductForm" class="my-4">
         <div class="input-group">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">Add Product</button>
         </div>
     </form>
-
-    <!-- List of produk (dynamically generated) -->
     <div id="productList" class="row row-cols-1 row-cols-md-3 g-4">
-        <!-- Placeholder for product items -->
     </div>
-
-    <!-- Add Product Modal -->
     <div id="addProductModal" class="modal fade" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -39,7 +34,7 @@
                             <input type="text" id="newProductPrice" class="form-control" required>
                         </div>
 
-                        <!-- Hidden file input, will be shown after clicking Add Product -->
+                        
                         <div id="fileInputContainer" style="display:none;">
                             <label for="newProductImage">Image</label>
                             <input type="file" id="newProductImage" name="image" class="form-control" accept="image/*" />
@@ -52,7 +47,7 @@
         </div>
     </div>
 
-    <!-- Edit Product Modal -->
+    
     <div id="editModal" class="modal fade" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -74,6 +69,11 @@
                             <label for="editProductPrice">Price</label>
                             <input type="text" id="editProductPrice" class="form-control" required>
                         </div>
+                        <div class="form-group">
+                            <label for="editProductImage">Image</label>
+                            <input type="file" id="editProductImage" name="image" class="form-control" accept="image/*" />
+                            <img id="currentProductImage" src="" alt="Current Product Image" width="100" height="100" class="mt-2" />
+                        </div>                        
                         <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
                     </form>
                 </div>
@@ -104,7 +104,7 @@
     const editProductPriceInput = document.getElementById('editProductPrice');
     let currentEditId = null;
 
-    // Render produk
+ 
     function renderproduk() {
         productListContainer.innerHTML = '';
         produk.forEach(product => {
@@ -125,15 +125,30 @@
             productListContainer.appendChild(productCard);
         });
 
-        // Attach event handlers for dynamic content
-        $('.editBtn').on('click', function () {
-            currentEditId = $(this).data('id');
-            const product = produk.find(p => p.id_produk === currentEditId);
-            editProductNameInput.value = product.nama_produk;
-            editProductDescriptionInput.value = product.deskripsi;
-            editProductPriceInput.value = product.harga;
-            editModal.show();
-        });
+       
+       // Saat tombol Edit diklik
+$('.editBtn').on('click', function () {
+    currentEditId = $(this).data('id');
+    const product = produk.find(p => p.id_produk === currentEditId);
+
+    // Isi input form dengan data produk
+    editProductNameInput.value = product.nama_produk;
+    editProductDescriptionInput.value = product.deskripsi;
+    editProductPriceInput.value = product.harga;
+
+    // Tampilkan gambar produk saat ini jika ada
+    const currentImage = document.getElementById('currentProductImage');
+    if (product.image_url) {
+        currentImage.src = product.image_url;
+        currentImage.style.display = 'block';
+    } else {
+        currentImage.style.display = 'none';
+    }
+
+    // Reset input file
+    $('#editProductImage').val('');
+    editModal.show();
+});
 
         $('.deleteBtn').on('click', function () {
             const id = $(this).data('id');
@@ -148,16 +163,16 @@
         });
     }
 
-    // Show the file input after clicking Add Product
+    
     $('#addProductModal').on('shown.bs.modal', function () {
-        fileInputContainer.style.display = 'block'; // Show file input
-        $('#newProductName').val(''); // Clear the product name input
-        $('#newProductDescription').val(''); // Clear the description input
-        $('#newProductPrice').val(''); // Clear the price input
-        $('#newProductImage').val(''); // Clear the image input
+        fileInputContainer.style.display = 'block'; 
+        $('#newProductName').val(''); 
+        $('#newProductDescription').val(''); 
+        $('#newProductPrice').val(''); 
+        $('#newProductImage').val(''); 
     });
 
-    // Add Product from Modal
+
     $('#addProductFormModal').on('submit', function (e) {
         e.preventDefault();
         const newProductName = $('#newProductName').val().trim();
@@ -182,9 +197,9 @@
                 produk.push(newProduct);
                 renderproduk();
                 $('#addProductModal').modal('hide');
-                $('.modal-backdrop').remove(); // Remove the backdrop manually
-                $('#addProductFormModal')[0].reset(); // Reset the form fields (name, description, price, image)
-                fileInputContainer.style.display = 'none'; // Hide the file input after submitting
+                $('.modal-backdrop').remove(); 
+                $('#addProductFormModal')[0].reset(); 
+                fileInputContainer.style.display = 'none'; 
             },
             error: function (error) {
                 console.error("Error adding product:", error.responseText);
@@ -192,36 +207,53 @@
         });
     });
 
-    // Update Product (from Edit Modal)
+    
     $('#editProductForm').on('submit', function (e) {
         e.preventDefault();
+    
         const updatedProductName = $('#editProductName').val().trim();
         const updatedProductDescription = $('#editProductDescription').val().trim();
         const updatedProductPrice = $('#editProductPrice').val().trim();
+        const newImage = $('#editProductImage')[0].files[0];
+    
         if (!updatedProductName || !updatedProductDescription || !updatedProductPrice) return;
-
+    
+        const formData = new FormData();
+        formData.append('nama_produk', updatedProductName);
+        formData.append('deskripsi', updatedProductDescription);
+        formData.append('harga', updatedProductPrice);
+        if (newImage) {
+            formData.append('image', newImage);
+        }
+    
         $.ajax({
             url: '/produk/' + currentEditId,
             type: 'PUT',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                nama_produk: updatedProductName,
-                deskripsi: updatedProductDescription,
-                harga: updatedProductPrice
-            }),
-            success: function () {
-                const updatedProduct = produk.find(product => product.id_produk === currentEditId);
-                updatedProduct.nama_produk = updatedProductName;
-                updatedProduct.deskripsi = updatedProductDescription;
-                updatedProduct.harga = updatedProductPrice;
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (updatedProduct) {
+                const product = produk.find(p => p.id_produk === currentEditId);
+                product.nama_produk = updatedProduct.nama_produk;
+                product.deskripsi = updatedProduct.deskripsi;
+                product.harga = updatedProduct.harga;
+    
+                // Perbarui URL gambar jika ada gambar baru
+                if (updatedProduct.image_url) {
+                    product.image_url = updatedProduct.image_url;
+                }
+    
                 renderproduk();
                 editModal.hide();
-                $('.modal-backdrop').remove(); // Remove the backdrop manually
+                $('.modal-backdrop').remove();
+            },
+            error: function (error) {
+                console.error("Error updating product:", error.responseText);
             }
         });
     });
 
-    // Initial fetch of produk
+   
     $(document).ready(function () {
         $.get('/produk', function (data) {
             produk = data;
@@ -229,12 +261,11 @@
         });
     });
 
-    // Remove the backdrop when the modal is hidden
     $('#addProductModal').on('hidden.bs.modal', function () {
-        $('.modal-backdrop').remove(); // Ensure backdrop is removed
-        $('#newProductName').val(''); // Clear the product name input field
-        $('#newProductDescription').val(''); // Clear the description input field
-        $('#newProductPrice').val(''); // Clear the price input field
-        $('#newProductImage').val(''); // Clear the image input field
+        $('.modal-backdrop').remove(); 
+        $('#newProductName').val('');
+        $('#newProductDescription').val(''); 
+        $('#newProductPrice').val(''); 
+        $('#newProductImage').val(''); 
     });
 </script>

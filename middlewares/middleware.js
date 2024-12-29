@@ -1,4 +1,4 @@
-// Middleware untuk memeriksa autentikasi
+
 function isAuthenticated(req, res, next) {
     if (req.session.userId) {
         return next();

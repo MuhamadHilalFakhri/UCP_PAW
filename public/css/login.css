@@ -1,3 +1,8 @@
+:root {
+    --primary: #2c786c;
+
+  }
+  
 /* Signup */
 body {
     margin: 0;
@@ -91,3 +96,14 @@ a:hover {
     text-align: center;
 }
 
+.card .navbar-logo {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #000000;
+    font-style: italic;
+  }
+  
+  .card .navbar-logo span {
+    color: var(--primary);
+  }
+  

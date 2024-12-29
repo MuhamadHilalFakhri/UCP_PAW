@@ -73,35 +73,37 @@ router.post('/', upload.single('image'), (req, res) => {
     );
 });
 
-// Endpoint to update an existing product
-router.put('/:id_produk', (req, res) => {
+// Endpoint to update an existing product with optional image update
+router.put('/:id_produk', upload.single('image'), (req, res) => {
     const { nama_produk, deskripsi, harga } = req.body;
     const produkId = req.params.id_produk;
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
-    if (!nama_produk || !deskripsi || !harga) {
-        return res.status(400).send('All fields are required.');
-    }
+    const updateQuery = `
+        UPDATE produk
+        SET nama_produk = ?, deskripsi = ?, harga = ?, image_url = COALESCE(?, image_url)
+        WHERE id_produk = ?
+    `;
+    const queryParams = [nama_produk.trim(), deskripsi.trim(), harga.trim(), imageUrl, produkId];
 
-    db.query(
-        'UPDATE produk SET nama_produk = ?, deskripsi = ?, harga = ? WHERE id_produk = ?',
-        [nama_produk.trim(), deskripsi.trim(), harga.trim(), produkId],
-        (err, results) => {
-            if (err) {
-                console.error('Database error:', err);
-                return res.status(500).send('Internal Server Error');
-            }
-            if (results.affectedRows === 0) {
-                return res.status(404).send('Product not found');
-            }
-            res.json({
-                id_produk: produkId,
-                nama_produk: nama_produk.trim(),
-                deskripsi: deskripsi.trim(),
-                harga: harga.trim()
-            });
+    db.query(updateQuery, queryParams, (err, results) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).send('Internal Server Error');
         }
-    );
+        if (results.affectedRows === 0) {
+            return res.status(404).send('Product not found');
+        }
+        res.json({
+            id_produk: produkId,
+            nama_produk: nama_produk.trim(),
+            deskripsi: deskripsi.trim(),
+            harga: harga.trim(),
+            image_url: imageUrl || req.body.current_image_url, // Menggunakan gambar lama jika tidak ada yang baru
+        });
+    });
 });
+
 
 // Endpoint to delete a product by ID
 router.delete('/:id_produk', (req, res) => {
