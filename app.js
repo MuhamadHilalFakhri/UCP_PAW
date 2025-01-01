@@ -39,12 +39,6 @@ app.get('/', isAuthenticated, (req, res) => {
     });
 });
 
-app.get('/contact', isAuthenticated, (req, res) => {
-    res.render('contact', {
-        layout: 'layouts/main-layout'
-    });
-});
-
 
 app.get('/produk-view', isAuthenticated, (req, res) => {
     db.query('SELECT * FROM produk', (err, produk) => {
